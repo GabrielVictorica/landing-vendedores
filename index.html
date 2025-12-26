@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vende tu Propiedad con Gabriel | Asesor Inmobiliario</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 (Para alertas) -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Facebook Pixel Code -->
+    <script>
+        !function (f, b, e, v, n, t, s) {
+            if (f.fbq) return; n = f.fbq = function () {
+                n.callMethod ?
+                    n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+            };
+            if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
+            n.queue = []; t = b.createElement(e); t.async = !0;
+            t.src = v; s = b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t, s)
+        }(window, document, 'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '887364637173488'); // Pixel EntreInmobiliarios
+        fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+            src="https://www.facebook.com/tr?id=887364637173488&ev=PageView&noscript=1" /></noscript>
+    <!-- End Facebook Pixel Code -->
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            blue: '#0B1120',
+                            gold: '#D4AF37',
+                            goldlight: '#F3E5AB',
+                            dark: '#080C15',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    animation: {
+                        'infinite-scroll': 'infinite-scroll 40s linear infinite',
+                    },
+                    keyframes: {
+                        'infinite-scroll': {
+                            from: { transform: 'translateX(0)' },
+                            to: { transform: 'translateX(-100%)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            scroll-behavior: smooth;
+        }
+
+        .gold-gradient-text {
+            background: linear-gradient(to right, #D4AF37, #F3E5AB, #D4AF37);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: shine 5s linear infinite;
+        }
+
+        @keyframes shine {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+        /* Efecto Marquee Fade */
+        .marquee-container {
+            mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+            -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+        }
+
+        /* Glass Cards */
+        .glass-card {
+            background: rgba(11, 17, 32, 0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Foto Mask */
+        .agent-cutout {
+            mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+        }
+    </style>
+</head>
+
+<body class="bg-brand-dark text-white font-sans antialiased overflow-x-hidden">
+
+    <!-- Navbar Minimalista (Solo Experiencia) -->
+    <nav class="absolute top-0 w-full z-50 py-6 px-6 lg:px-12 flex justify-start items-center bg-transparent">
+        <div
+            class="text-sm font-sans font-medium text-brand-gold/80 tracking-widest uppercase border-l-2 border-brand-gold pl-4">
+            ASESOR INMOBILIARIO <span class="text-white/60 mx-2">|</span> <span
+                class="text-gray-300 normal-case tracking-normal">+3 años de experiencia en General Roca, Río
+                Negro</span>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION DIVIDIDO -->
+    <header class="relative pt-24 pb-12 lg:pt-32 lg:pb-20 overflow-hidden">
+        <!-- Background Decorativo Sutil -->
+        <div class="absolute top-0 right-0 w-1/2 h-full bg-brand-blue/30 rounded-l-full blur-3xl -z-10"></div>
+
+        <div class="container mx-auto px-6">
+            <div class="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+
+                <!-- COLUMNA IZQUIERDA: Marca Personal + Foto -->
+                <!-- En Móvil: Order 1 (Primero) -->
+                <div class="order-1 flex flex-col items-center lg:items-start text-center lg:text-left relative">
+
+                    <!-- Foto y Títulos Group -->
+                    <div class="relative w-full max-w-md mx-auto lg:mx-0">
+                        <!-- Glow Effect -->
+                        <div
+                            class="absolute bottom-0 left-1/2 -translate-x-1/2 lg:left-1/3 lg:translate-x-0 w-64 h-64 bg-brand-gold/20 blur-[80px] rounded-full">
+                        </div>
+
+                        <!-- Foto Asesor -->
+                        <div
+                            class="relative z-10 mx-auto lg:mx-0 w-64 h-64 sm:w-80 sm:h-80 lg:w-[450px] lg:h-[450px] flex items-end justify-center mb-2">
+                            <img src="FOTO_GABRIEL.png" alt="Gabriel Victorica"
+                                class="w-full h-full object-contain filter drop-shadow-2xl hover:scale-105 transition duration-500">
+                        </div>
+
+                        <!-- Títulos (Pegados a la foto/integrated in mobile layout logic) -->
+                        <div class="relative z-20 -mt-4 lg:-mt-0">
+                            <p class="text-brand-gold font-bold tracking-[0.2em] text-sm mb-2">GABRIEL VICTORICA</p>
+                            <h1 class="text-4xl lg:text-5xl font-serif font-bold leading-tight mb-4">
+                                Te ayudo a vender <br class="hidden lg:block">
+                                <span class="gold-gradient-text">en 90 días promedio</span>
+                            </h1>
+                            <p class="text-gray-400 text-lg font-light max-w-md mx-auto lg:mx-0">
+                                No es magia, es estrategia. Tu propiedad es única y merece un plan de marketing de alto
+                                nivel.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLUMNA DERECHA: Formulario -->
+                <!-- En Móvil: Order 2 (Segundo) -->
+                <div class="order-2 w-full max-w-md mx-auto lg:ml-auto relative z-30">
+                    <div id="contacto" class="glass-card p-6 sm:p-8 rounded-xl">
+                        <h3 class="text-2xl font-serif text-white mb-1">Empezá acá 👇</h3>
+                        <p class="text-sm text-gray-400 mb-6">Deja tus datos y me pondré en contacto en menos de 24hs
+                            para ver de que manera puedo ayudarte.</p>
+
+                        <form action="#" class="space-y-4" id="contact-form">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <input type="text" id="nombre" placeholder="Nombre" required
+                                        class="w-full bg-brand-dark/60 border border-gray-700 focus:border-brand-gold text-white px-4 py-3 rounded-sm outline-none transition placeholder-gray-500 text-sm">
+                                </div>
+                                <div>
+                                    <input type="text" id="apellido" placeholder="Apellido" required
+                                        class="w-full bg-brand-dark/60 border border-gray-700 focus:border-brand-gold text-white px-4 py-3 rounded-sm outline-none transition placeholder-gray-500 text-sm">
+                                </div>
+                            </div>
+                            <div>
+                                <input type="tel" id="telefono" placeholder="Teléfono/Whatsapp" required
+                                    pattern="[0-9]+" inputmode="numeric"
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                    class="w-full bg-brand-dark/60 border border-gray-700 focus:border-brand-gold text-white px-4 py-3 rounded-sm outline-none transition placeholder-gray-500 text-sm">
+                            </div>
+                            <div>
+                                <input type="email" id="email" placeholder="Correo Electrónico" required
+                                    class="w-full bg-brand-dark/60 border border-gray-700 focus:border-brand-gold text-white px-4 py-3 rounded-sm outline-none transition placeholder-gray-500 text-sm">
+                            </div>
+
+                            <div>
+                                <input type="text" id="direccion" placeholder="Direccion propiedad A VENDER" required
+                                    class="w-full bg-brand-dark/60 border border-gray-700 focus:border-brand-gold text-white px-4 py-3 rounded-sm outline-none transition placeholder-gray-500 text-sm">
+                            </div>
+
+                            <button type="submit" id="btn-submit"
+                                class="w-full bg-brand-gold hover:bg-white text-brand-blue hover:text-brand-dark font-bold px-6 py-4 rounded-sm mt-2 transition duration-300 shadow-lg tracking-wide uppercase text-sm">
+                                Enviar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- SECTION: CARRUSEL INFINITO (VENDIDAS) -->
+    <section class="py-12 bg-black relative border-t border-gray-900 border-b border-gray-900 overflow-hidden">
+        <div class="container mx-auto px-6 mb-8 text-center">
+            <p class="text-brand-gold text-xs font-bold tracking-[0.3em] uppercase mb-2">Resultados Comprobados</p>
+            <h2 class="text-2xl font-serif text-white">Propiedades Vendidas Recientemente</h2>
+        </div>
+
+        <!-- Marquee Container -->
+        <div class="marquee-container w-full inline-flex flex-nowrap overflow-hidden">
+            <ul
+                class="flex items-center justify-center md:justify-start [&_li]:mx-4 [&_img]:max-w-none animate-infinite-scroll">
+                <!-- Lista Oficial (9 Imágenes) -->
+                <li>
+                    <div class="relative w-64 h-40 rounded-lg overflow-hidden group"><img
+                            src="Imagenes_carrusel/486327979_1142303394342167_2032161520371318224_n.jpg"
+                            class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500">
+                        <div
+                            class="absolute bottom-2 left-2 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">
+                            Vendida</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="relative w-64 h-40 rounded-lg overflow-hidden group"><img
+                            src="Imagenes_carrusel/491591726_1159467905959049_3279082786292281653_n.jpg"
+                            class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500">
+                        <div
+                            class="absolute bottom-2 left-2 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">
+                            Vendida</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="relative w-64 h-40 rounded-lg overflow-hidden group"><img
+                            src="Imagenes_carrusel/502474578_1192314902674349_321056136281013656_n.jpg"
+                            class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500">
+                        <div
+                            class="absolute bottom-2 left-2 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">
+                            Vendida</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="relative w-64 h-40 rounded-lg overflow-hidden group"><img
+                            src="Imagenes_carrusel/Gemini_Generated_Image_ank022ank022ank0.png"
+                            class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500">
+                        <div
+                            class="absolute bottom-2 left-2 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">
+                            Vendida</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="relative w-64 h-40 rounded-lg overflow-hidden group"><img
+                            src="Imagenes_carrusel/IMG_20250104_122756575.jpg"
+                            class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500">
+                        <div
+                            class="absolute bottom-2 left-2 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">
+                            Vendida</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="relative w-64 h-40 rounded-lg overflow-hidden group"><img
+                            src="Imagenes_carrusel/IMG_20250919_152958300.jpg"
+                            class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500">
+                        <div
+                            class="absolute bottom-2 left-2 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">
+                            Vendida</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="relative w-64 h-40 rounded-lg overflow-hidden group"><img
+                            src="Imagenes_carrusel/Imagen de WhatsApp 2025-07-31 a las 20.50.00_23d0c205.jpg"
+                            class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500">
+                        <div
+                            class="absolute bottom-2 left-2 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">
+                            Vendida</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="relative w-64 h-40 rounded-lg overflow-hidden group"><img
+                            src="Imagenes_carrusel/Imagen de WhatsApp 2025-08-20 a las 13.21.24_27096fff.jpg"
+                            class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500">
+                        <div
+                            class="absolute bottom-2 left-2 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">
+                            Vendida</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="relative w-64 h-40 rounded-lg overflow-hidden group"><img
+                            src="Imagenes_carrusel/a164a0b6-4c77-4368-91fc-19ca8036f351.png"
+                            class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500">
+                        <div
+                            class="absolute bottom-2 left-2 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">
+                            Vendida</div>
+                    </div>
+                </li>
+
+                <!-- Duplicado para Scroll Infinito (9 Imágenes) -->
+                <li>
+                    <div class="relative w-64 h-40 rounded-lg overflow-hidden group"><img
+                            src="Imagenes_carrusel/486327979_1142303394342167_2032161520371318224_n.jpg"
+                            class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500">
+                        <div
+                            class="absolute bottom-2 left-2 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">
+                            Vendida</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="relative w-64 h-40 rounded-lg overflow-hidden group"><img
+                            src="Imagenes_carrusel/491591726_1159467905959049_3279082786292281653_n.jpg"
+                            class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500">
+                        <div
+                            class="absolute bottom-2 left-2 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">
+                            Vendida</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="relative w-64 h-40 rounded-lg overflow-hidden group"><img
+                            src="Imagenes_carrusel/502474578_1192314902674349_321056136281013656_n.jpg"
+                            class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500">
+                        <div
+                            class="absolute bottom-2 left-2 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">
+                            Vendida</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="relative w-64 h-40 rounded-lg overflow-hidden group"><img
+                            src="Imagenes_carrusel/Gemini_Generated_Image_ank022ank022ank0.png"
+                            class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500">
+                        <div
+                            class="absolute bottom-2 left-2 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">
+                            Vendida</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="relative w-64 h-40 rounded-lg overflow-hidden group"><img
+                            src="Imagenes_carrusel/IMG_20250104_122756575.jpg"
+                            class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500">
+                        <div
+                            class="absolute bottom-2 left-2 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">
+                            Vendida</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="relative w-64 h-40 rounded-lg overflow-hidden group"><img
+                            src="Imagenes_carrusel/IMG_20250919_152958300.jpg"
+                            class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500">
+                        <div
+                            class="absolute bottom-2 left-2 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">
+                            Vendida</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="relative w-64 h-40 rounded-lg overflow-hidden group"><img
+                            src="Imagenes_carrusel/Imagen de WhatsApp 2025-07-31 a las 20.50.00_23d0c205.jpg"
+                            class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500">
+                        <div
+                            class="absolute bottom-2 left-2 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">
+                            Vendida</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="relative w-64 h-40 rounded-lg overflow-hidden group"><img
+                            src="Imagenes_carrusel/Imagen de WhatsApp 2025-08-20 a las 13.21.24_27096fff.jpg"
+                            class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500">
+                        <div
+                            class="absolute bottom-2 left-2 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">
+                            Vendida</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="relative w-64 h-40 rounded-lg overflow-hidden group"><img
+                            src="Imagenes_carrusel/a164a0b6-4c77-4368-91fc-19ca8036f351.png"
+                            class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500">
+                        <div
+                            class="absolute bottom-2 left-2 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">
+                            Vendida</div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- BENEFICIOS (Reordenado) -->
+    <section class="py-20 bg-brand-dark">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h3 class="text-3xl lg:text-4xl font-serif text-white mb-4">
+                    ¿Por qué elegirme para <br> <span class="text-brand-gold">gestionar tu patrimonio?</span>
+                </h3>
+                <div class="w-16 h-1 bg-brand-gold mx-auto"></div>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- 1. Valor de Mercado Real -->
+                <div
+                    class="bg-brand-blue/30 p-8 rounded-xl border border-gray-800 hover:border-brand-gold/50 transition duration-300 text-center group hover:-translate-y-1">
+                    <div
+                        class="w-14 h-14 mx-auto rounded-full bg-brand-dark flex items-center justify-center text-brand-gold text-xl mb-6 shadow-lg group-hover:scale-110 transition border border-brand-gold/10">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-3 font-serif">Valor de Mercado Real</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed text-justify">
+                        Muchos te dirán el precio que querés escuchar solo para captar tu propiedad. Yo trabajo con
+                        datos duros de cierre y análisis de mercado. Prefiero perder una captación por ser honesto con
+                        el precio, a tenerte meses esperando una venta que nunca llega.
+                    </p>
+                </div>
+
+                <!-- 2. Producción Visual de Alto Nivel -->
+                <div
+                    class="bg-brand-blue/30 p-8 rounded-xl border border-gray-800 hover:border-brand-gold/50 transition duration-300 text-center group hover:-translate-y-1">
+                    <div
+                        class="w-14 h-14 mx-auto rounded-full bg-brand-dark flex items-center justify-center text-brand-gold text-xl mb-6 shadow-lg group-hover:scale-110 transition border border-brand-gold/10">
+                        <i class="fa-solid fa-camera"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-3 font-serif">Producción Visual de Alto Nivel</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed text-justify">
+                        Una foto oscura le hace perder valor a tu casa. Invierto en fotografía profesional, videos,
+                        contenido orgánico constante y amoblamiento virtual para que tu propiedad destaque y genere una
+                        primera impresión inmejorable.
+                    </p>
+                </div>
+
+                <!-- 3. Inversión Publicitaria Activa -->
+                <div
+                    class="bg-brand-blue/30 p-8 rounded-xl border border-gray-800 hover:border-brand-gold/50 transition duration-300 text-center group hover:-translate-y-1">
+                    <div
+                        class="w-14 h-14 mx-auto rounded-full bg-brand-dark flex items-center justify-center text-brand-gold text-xl mb-6 shadow-lg group-hover:scale-110 transition border border-brand-gold/10">
+                        <i class="fa-solid fa-bullhorn"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-3 font-serif">Inversión Publicitaria Activa</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed text-justify">
+                        Colgar un cartel no es vender. Invierto mi propio capital en campañas segmentadas de Meta Ads
+                        (Facebook e Instagram) para que tu propiedad le aparezca activamente al comprador ideal, en
+                        lugar de sentarnos a esperar.
+                    </p>
+                </div>
+
+                <!-- 4. Filtro Riguroso de Visitas -->
+                <div
+                    class="bg-brand-blue/30 p-8 rounded-xl border border-gray-800 hover:border-brand-gold/50 transition duration-300 text-center group hover:-translate-y-1">
+                    <div
+                        class="w-14 h-14 mx-auto rounded-full bg-brand-dark flex items-center justify-center text-brand-gold text-xl mb-6 shadow-lg group-hover:scale-110 transition border border-brand-gold/10">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-3 font-serif">Filtro Riguroso de Visitas</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed text-justify">
+                        Tu tiempo y seguridad no son negociables. No realizo visitas con cualquiera. Pre-califico
+                        financieramente a cada interesado para asegurar que quien entre a tu casa tenga la intención y
+                        la capacidad real de compra.
+                    </p>
+                </div>
+
+                <!-- 5. Comunicación Transparente -->
+                <div
+                    class="bg-brand-blue/30 p-8 rounded-xl border border-gray-800 hover:border-brand-gold/50 transition duration-300 text-center group hover:-translate-y-1">
+                    <div
+                        class="w-14 h-14 mx-auto rounded-full bg-brand-dark flex items-center justify-center text-brand-gold text-xl mb-6 shadow-lg group-hover:scale-110 transition border border-brand-gold/10">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-3 font-serif">Comunicación Transparente</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed text-justify">
+                        La incertidumbre es lo peor del proceso. Conmigo vas a tener reportes quincenales claros: cuánta
+                        gente vio el aviso, qué opinaron las visitas y ajustes de estrategia. Vas a tener el control de
+                        la situación siempre.
+                    </p>
+                </div>
+
+                <!-- 6. Compromiso Total (Exclusividad) -->
+                <div
+                    class="bg-brand-blue/30 p-8 rounded-xl border border-gray-800 hover:border-brand-gold/50 transition duration-300 text-center group hover:-translate-y-1">
+                    <div
+                        class="w-14 h-14 mx-auto rounded-full bg-brand-dark flex items-center justify-center text-brand-gold text-xl mb-6 shadow-lg group-hover:scale-110 transition border border-brand-gold/10">
+                        <i class="fa-solid fa-handshake"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-3 font-serif">Compromiso Total (Exclusividad)</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed text-justify">
+                        Lo que es de todos, no es de nadie. Si tu casa la tienen cinco inmobiliarias, nadie invierte
+                        dinero real en ella. Al trabajar con exclusividad, yo asumo el 100% del compromiso financiero y
+                        publicitario para defender tu precio.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-black py-8 border-t border-gray-900 border-b-4 border-b-brand-gold">
+        <div class="container mx-auto px-6 text-center">
+            <div class="text-xl font-serif font-bold text-brand-gold tracking-widest mb-2">
+                GABRIEL VICTORICA
+            </div>
+            <p class="text-gray-500 text-xs mb-2 max-w-2xl mx-auto">
+                Martillera Responsable Matrícula Profesional N° 3897-GR-39 > (F° 1469/1511 L° I)
+            </p>
+            <p class="text-gray-500 text-sm mb-6">Ayudando a dueños a vender con estrategia y confianza.</p>
+            <div class="flex justify-center gap-6">
+                <a href="https://www.instagram.com/gabriel_victorica/" target="_blank"
+                    class="text-gray-600 hover:text-brand-gold transition transform hover:scale-110"><i
+                        class="fa-brands fa-instagram text-2xl"></i></a>
+                <a href="https://wa.me/5492920279076" target="_blank"
+                    class="text-gray-600 hover:text-brand-gold transition transform hover:scale-110"><i
+                        class="fa-brands fa-whatsapp text-2xl"></i></a>
+                <a href="https://www.facebook.com/GabrielVictoricaAsesor/" target="_blank"
+                    class="text-gray-600 hover:text-brand-gold transition transform hover:scale-110"><i
+                        class="fa-brands fa-facebook-f text-2xl"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Floating Action Button (FAB) -->
+    <a href="#contacto" id="fab-contact"
+        class="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-brand-gold text-brand-blue font-bold px-6 py-4 rounded-full shadow-[0_0_25px_rgba(212,175,55,0.4)] hover:scale-105 hover:bg-white transition duration-300 animate-bounce cursor-pointer group border-2 border-brand-blue/20">
+        <span class="tracking-wide">CONSULTAR</span>
+        <i class="fa-solid fa-comment-dots text-xl"></i>
+    </a>
+
+    <!-- Smooth Scoll Script -->
+    <script>
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center' // Centra el elemento en la pantalla
+                    });
+                }
+            });
+        });
+    </script>
+    <!-- Form Submission Script (API Vercel) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('contact-form');
+            const btnSubmit = document.getElementById('btn-submit');
+
+            if (form) {
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    // UI Loading
+                    const originalBtnText = btnSubmit.innerText;
+                    btnSubmit.innerText = 'Enviando...';
+                    btnSubmit.disabled = true;
+                    btnSubmit.classList.add('opacity-70', 'cursor-not-allowed');
+
+                    // Capturar datos
+                    const formData = {
+                        nombre: document.getElementById('nombre').value,
+                        apellido: document.getElementById('apellido').value,
+                        telefono: document.getElementById('telefono').value,
+                        email: document.getElementById('email').value,
+                        direccion: document.getElementById('direccion').value
+                    };
+
+                    try {
+                        // Enviamos al Backend (Serverless Function)
+                        const response = await fetch('/api/guardar-lead', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(formData)
+                        });
+
+                        const result = await response.json();
+
+                        if (!response.ok) {
+                            throw new Error(result.error || 'Error en el servidor');
+                        }
+
+                        // Trackear evento lead en Pixel (Frontend) como respaldo
+                        if (typeof fbq === 'function') {
+                            fbq('track', 'Lead');
+                        }
+
+                        // Éxito UI
+                        Swal.fire({
+                            title: '¡Recibido!',
+                            text: 'Me pondré en contacto contigo en menos de 24hs.',
+                            icon: 'success',
+                            confirmButtonColor: '#D4AF37', // brand-gold
+                            background: '#0B1120', // brand-dark
+                            color: '#fff'
+                        });
+
+                        btnSubmit.innerText = '¡Enviado!';
+                        btnSubmit.classList.remove('bg-brand-gold', 'text-brand-blue');
+                        btnSubmit.classList.add('bg-green-600', 'text-white');
+
+                        form.reset();
+
+                        setTimeout(() => {
+                            btnSubmit.innerText = originalBtnText;
+                            btnSubmit.disabled = false;
+                            btnSubmit.classList.remove('opacity-70', 'cursor-not-allowed', 'bg-green-600', 'text-white');
+                            btnSubmit.classList.add('bg-brand-gold', 'text-brand-blue');
+                        }, 5000);
+
+                    } catch (error) {
+                        console.error('Error:', error);
+
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Hubo un problema. Por favor contáctame por WhatsApp.',
+                            icon: 'error',
+                            confirmButtonColor: '#D4AF37',
+                            background: '#0B1120',
+                            color: '#fff'
+                        });
+
+                        btnSubmit.innerText = originalBtnText;
+                        btnSubmit.disabled = false;
+                        btnSubmit.classList.remove('opacity-70', 'cursor-not-allowed');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

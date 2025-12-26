@@ -1,0 +1,9 @@
+{
+  "name": "landing-inmobiliaria",
+  "version": "1.0.0",
+  "description": "Landing page inmobiliaria con backend serverless",
+  "main": "index.html",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  }
+}
