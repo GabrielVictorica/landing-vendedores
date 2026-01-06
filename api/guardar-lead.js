@@ -78,7 +78,29 @@ export default async function handler(req, res) {
             // No fallamos la request completa si falla FB, priorizamos DB
         }
 
-        return res.status(200).json({ success: true, message: 'Lead guardado y enviado a CAPI', data: dbData });
+        // 3. Enviar a N8N para notificación por WhatsApp
+        try {
+            const n8nWebhookUrl = 'https://appn8n.gabrielvictorica.com/webhook/lead-landing';
+            const n8nResponse = await fetch(n8nWebhookUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    nombre,
+                    apellido,
+                    telefono,
+                    email,
+                    direccion,
+                    fecha_hora: new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })
+                })
+            });
+            const n8nResult = await n8nResponse.json();
+            console.log('N8N Webhook Response:', n8nResult);
+        } catch (n8nError) {
+            console.error('Error enviando a N8N:', n8nError);
+            // No fallamos la request completa si falla N8N, priorizamos DB y CAPI
+        }
+
+        return res.status(200).json({ success: true, message: 'Lead guardado, enviado a CAPI y notificado por WhatsApp', data: dbData });
 
     } catch (error) {
         console.error('Error en API:', error);
