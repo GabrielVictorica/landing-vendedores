@@ -22,8 +22,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- Three.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <!-- Facebook Pixel Code -->
     <script>
@@ -598,203 +596,177 @@
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
             const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.z = 50;
+            const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera.position.z = 5;
 
             let scrollProgress = 0;
             let targetScroll = 0;
-            let mouseX = 0, mouseY = 0;
-            let targetMouseX = 0, targetMouseY = 0;
 
-            // Image group - floating property images in 3D space
-            const imageGroup = new THREE.Group();
-            scene.add(imageGroup);
-
-            // Property images for the 3D background
-            const imageUrls = [
-                'Imagenes_carrusel/486327979_1142303394342167_2032161520371318224_n.jpg',
-                'Imagenes_carrusel/491591726_1159467905959049_3279082786292281653_n.jpg',
-                'Imagenes_carrusel/502474578_1192314902674349_321056136281013656_n.jpg',
-                'Imagenes_carrusel/IMG_20250104_122756575.jpg',
-                'Imagenes_carrusel/IMG_20250919_152958300.jpg',
-                'Imagenes_carrusel/a164a0b6-4c77-4368-91fc-19ca8036f351.png',
-            ];
-
-            const imagePlanes = [];
-            const imageAspect = 1.6;
-            const planeWidth = 12;
-            const planeHeight = planeWidth / imageAspect;
-
-            imageUrls.forEach((url, i) => {
-                const textureLoader = new THREE.TextureLoader();
-                textureLoader.load(url, (texture) => {
-                    texture.minFilter = THREE.LinearFilter;
-                    texture.magFilter = THREE.LinearFilter;
-                    const geometry = new THREE.PlaneGeometry(planeWidth, planeHeight);
-                    const material = new THREE.MeshBasicMaterial({
-                        map: texture,
-                        transparent: true,
-                        opacity: 0.12,
-                        side: THREE.DoubleSide,
-                        depthWrite: false,
-                    });
-                    const mesh = new THREE.Mesh(geometry, material);
-                    mesh.position.set(
-                        (Math.random() - 0.5) * 60,
-                        (Math.random() - 0.5) * 80 - i * 20,
-                        (Math.random() - 0.5) * 30 - 10
-                    );
-                    mesh.rotation.z = (Math.random() - 0.5) * 0.3;
-                    mesh.userData = {
-                        baseY: mesh.position.y,
-                        baseX: mesh.position.x,
-                        baseZ: mesh.position.z,
-                        floatSpeed: 0.3 + Math.random() * 0.5,
-                        floatAmp: 1 + Math.random() * 2,
-                        rotSpeed: (Math.random() - 0.5) * 0.002,
-                        parallaxFactor: 0.2 + Math.random() * 0.5,
-                        index: i,
-                    };
-                    imageGroup.add(mesh);
-                    imagePlanes.push(mesh);
-                });
-            });
-
-            // Gold particle system in 3D
-            const particleCount = 1500;
-            const particleGeometry = new THREE.BufferGeometry();
-            const positions = new Float32Array(particleCount * 3);
-            const sizes = new Float32Array(particleCount);
-            const opacities = new Float32Array(particleCount);
-
-            for (let i = 0; i < particleCount; i++) {
-                positions[i * 3] = (Math.random() - 0.5) * 120;
-                positions[i * 3 + 1] = (Math.random() - 0.5) * 120;
-                positions[i * 3 + 2] = (Math.random() - 0.5) * 60 - 15;
-                sizes[i] = Math.random() * 2 + 0.5;
-                opacities[i] = Math.random() * 0.6 + 0.1;
-            }
-
-            particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-            particleGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-            particleGeometry.setAttribute('opacity', new THREE.BufferAttribute(opacities, 1));
-
-            const particleMaterial = new THREE.ShaderMaterial({
+            // Full-screen background plane with wave shader
+            const bgGeometry = new THREE.PlaneGeometry(16, 9, 128, 128);
+            const bgMaterial = new THREE.ShaderMaterial({
                 uniforms: {
-                    uColor: { value: new THREE.Color(0xD4AF37) },
                     uTime: { value: 0 },
                     uScroll: { value: 0 },
+                    uOpacity: { value: 0.18 },
+                    uColor1: { value: new THREE.Color(0x0B1120) },
+                    uColor2: { value: new THREE.Color(0xD4AF37) },
+                },
+                vertexShader: `
+                    uniform float uTime;
+                    uniform float uScroll;
+                    varying vec2 vUv;
+                    varying float vWave;
+                    void main() {
+                        vUv = uv;
+                        vec3 pos = position;
+                        float wave1 = sin(pos.x * 1.5 + uTime * 0.3) * 0.15;
+                        float wave2 = cos(pos.y * 1.2 + uTime * 0.2) * 0.1;
+                        float wave3 = sin((pos.x + pos.y) * 0.8 + uTime * 0.4) * 0.08;
+                        float scrollWave = sin(pos.x * 2.0 + uScroll * 0.005) * 0.2 * uScroll * 0.001;
+                        pos.z = wave1 + wave2 + wave3 + scrollWave;
+                        vWave = pos.z;
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+                    }
+                `,
+                fragmentShader: `
+                    uniform float uTime;
+                    uniform float uOpacity;
+                    uniform vec3 uColor1;
+                    uniform vec3 uColor2;
+                    varying vec2 vUv;
+                    varying float vWave;
+                    void main() {
+                        float pattern = sin(vUv.x * 20.0 + uTime * 0.2) * 0.5 + 0.5;
+                        pattern *= sin(vUv.y * 15.0 + uTime * 0.15) * 0.5 + 0.5;
+                        vec3 color = mix(uColor1, uColor2, pattern * 0.15 + vWave * 0.3);
+                        float alpha = uOpacity * (0.5 + pattern * 0.5);
+                        gl_FragColor = vec4(color, alpha);
+                    }
+                `,
+                transparent: true,
+                side: THREE.DoubleSide,
+                depthWrite: false,
+            });
+            const bgPlane = new THREE.Mesh(bgGeometry, bgMaterial);
+            bgPlane.position.z = -3;
+            scene.add(bgPlane);
+
+            // Generated real estate image as 3D plane
+            const imgGeometry = new THREE.PlaneGeometry(12, 7, 64, 64);
+            const imgMaterial = new THREE.ShaderMaterial({
+                uniforms: {
+                    uTime: { value: 0 },
+                    uScroll: { value: 0 },
+                    uTexture: { value: null },
+                    uOpacity: { value: 0.12 },
+                },
+                vertexShader: `
+                    uniform float uTime;
+                    uniform float uScroll;
+                    varying vec2 vUv;
+                    varying float vDisplacement;
+                    void main() {
+                        vUv = uv;
+                        vec3 pos = position;
+                        float displacement = sin(pos.x * 2.0 + uTime * 0.4) * 0.08;
+                        displacement += cos(pos.y * 1.5 + uTime * 0.3) * 0.06;
+                        displacement += sin(uScroll * 0.003 + pos.x * 1.5) * 0.15;
+                        pos.z += displacement;
+                        vDisplacement = displacement;
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+                    }
+                `,
+                fragmentShader: `
+                    uniform sampler2D uTexture;
+                    uniform float uOpacity;
+                    uniform float uTime;
+                    varying vec2 vUv;
+                    varying float vDisplacement;
+                    void main() {
+                        vec2 uv = vUv;
+                        uv.x += sin(uv.y * 3.14159 + uTime * 0.2) * 0.003;
+                        vec4 texColor = texture2D(uTexture, uv);
+                        float fade = smoothstep(0.0, 0.15, vUv.x) * smoothstep(1.0, 0.85, vUv.x);
+                        fade *= smoothstep(0.0, 0.15, vUv.y) * smoothstep(1.0, 0.85, vUv.y);
+                        float alpha = texColor.a * uOpacity * fade;
+                        gl_FragColor = vec4(texColor.rgb, alpha);
+                    }
+                `,
+                transparent: true,
+                side: THREE.DoubleSide,
+                depthWrite: false,
+            });
+            const imgPlane = new THREE.Mesh(imgGeometry, imgMaterial);
+            imgPlane.position.z = -2;
+            scene.add(imgPlane);
+
+            // Load generated image
+            const textureLoader = new THREE.TextureLoader();
+            textureLoader.load('nanobanana-output/luxury_modern_house_exterior_at_.png', function(texture) {
+                texture.minFilter = THREE.LinearFilter;
+                texture.magFilter = THREE.LinearFilter;
+                imgMaterial.uniforms.uTexture.value = texture;
+            });
+
+            // Gold particles
+            const count = 800;
+            const pGeometry = new THREE.BufferGeometry();
+            const pPositions = new Float32Array(count * 3);
+            for (let i = 0; i < count; i++) {
+                pPositions[i * 3] = (Math.random() - 0.5) * 20;
+                pPositions[i * 3 + 1] = (Math.random() - 0.5) * 12;
+                pPositions[i * 3 + 2] = (Math.random() - 0.5) * 6 - 1;
+            }
+            pGeometry.setAttribute('position', new THREE.BufferAttribute(pPositions, 3));
+
+            const pMaterial = new THREE.ShaderMaterial({
+                uniforms: {
+                    uTime: { value: 0 },
+                    uScroll: { value: 0 },
+                    uColor: { value: new THREE.Color(0xD4AF37) },
                     uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) },
                 },
                 vertexShader: `
-                    attribute float size;
-                    attribute float opacity;
-                    varying float vOpacity;
                     uniform float uTime;
                     uniform float uScroll;
                     uniform float uPixelRatio;
+                    varying float vAlpha;
                     void main() {
-                        vOpacity = opacity;
                         vec3 pos = position;
-                        pos.y += sin(uTime * 0.3 + position.x * 0.05) * 0.8;
-                        pos.x += cos(uTime * 0.2 + position.z * 0.03) * 0.5;
-                        pos.y -= uScroll * 0.02 * (position.z + 30.0) * 0.1;
-                        vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-                        gl_PointSize = size * uPixelRatio * (80.0 / -mvPosition.z);
-                        gl_Position = projectionMatrix * mvPosition;
+                        pos.y += sin(uTime * 0.3 + position.x * 0.5) * 0.15;
+                        pos.x += cos(uTime * 0.2 + position.z * 0.3) * 0.1;
+                        pos.y -= uScroll * 0.0003;
+                        vec4 mvPos = modelViewMatrix * vec4(pos, 1.0);
+                        gl_PointSize = (1.5 + sin(uTime + position.x) * 0.5) * uPixelRatio * (4.0 / -mvPos.z);
+                        gl_Position = projectionMatrix * mvPos;
+                        vAlpha = 0.3 + sin(uTime * 0.5 + position.y * 2.0) * 0.2;
                     }
                 `,
                 fragmentShader: `
                     uniform vec3 uColor;
-                    varying float vOpacity;
+                    varying float vAlpha;
                     void main() {
-                        float dist = length(gl_PointCoord - vec2(0.5));
-                        if (dist > 0.5) discard;
-                        float alpha = smoothstep(0.5, 0.1, dist) * vOpacity;
-                        gl_FragColor = vec4(uColor, alpha);
+                        float d = length(gl_PointCoord - 0.5);
+                        if (d > 0.5) discard;
+                        float a = smoothstep(0.5, 0.0, d) * vAlpha;
+                        gl_FragColor = vec4(uColor, a);
                     }
                 `,
                 transparent: true,
                 depthWrite: false,
                 blending: THREE.AdditiveBlending,
             });
+            const points = new THREE.Points(pGeometry, pMaterial);
+            scene.add(points);
 
-            const particles = new THREE.Points(particleGeometry, particleMaterial);
-            scene.add(particles);
-
-            // Connection lines between nearby particles
-            const lineMaterial = new THREE.LineBasicMaterial({
-                color: 0xD4AF37,
-                transparent: true,
-                opacity: 0.04,
-                blending: THREE.AdditiveBlending,
-            });
-
-            const lineGeometry = new THREE.BufferGeometry();
-            const linePositions = new Float32Array(particleCount * 6);
-            lineGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
-            const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
-            scene.add(lines);
-
-            // Gold wireframe geometric shapes
-            const shapes = [];
-            const shapeConfigs = [
-                { type: 'icosahedron', size: 8, detail: 1, pos: [-25, 15, -20] },
-                { type: 'octahedron', size: 6, detail: 0, pos: [30, -10, -25] },
-                { type: 'torus', size: 5, pos: [-20, -20, -15] },
-                { type: 'dodecahedron', size: 7, detail: 0, pos: [25, 25, -30] },
-                { type: 'icosahedron', size: 10, detail: 2, pos: [0, -30, -35] },
-            ];
-
-            shapeConfigs.forEach((config, i) => {
-                let geometry;
-                switch (config.type) {
-                    case 'icosahedron':
-                        geometry = new THREE.IcosahedronGeometry(config.size, config.detail || 0);
-                        break;
-                    case 'octahedron':
-                        geometry = new THREE.OctahedronGeometry(config.size, config.detail || 0);
-                        break;
-                    case 'torus':
-                        geometry = new THREE.TorusGeometry(config.size, config.size * 0.3, 8, 16);
-                        break;
-                    case 'dodecahedron':
-                        geometry = new THREE.DodecahedronGeometry(config.size, config.detail || 0);
-                        break;
-                }
-                const material = new THREE.MeshBasicMaterial({
-                    color: 0xD4AF37,
-                    wireframe: true,
-                    transparent: true,
-                    opacity: 0.06,
-                });
-                const mesh = new THREE.Mesh(geometry, material);
-                mesh.position.set(...config.pos);
-                mesh.userData = {
-                    rotSpeed: { x: (Math.random() - 0.5) * 0.003, y: (Math.random() - 0.5) * 0.003 },
-                    floatSpeed: 0.2 + Math.random() * 0.3,
-                    floatAmp: 2 + Math.random() * 3,
-                    baseY: config.pos[1],
-                    parallaxFactor: 0.1 + Math.random() * 0.3,
-                };
-                scene.add(mesh);
-                shapes.push(mesh);
-            });
-
-            // Scroll handler
+            // Scroll
             function getMaxScroll() {
                 return document.documentElement.scrollHeight - window.innerHeight;
             }
-
             window.addEventListener('scroll', () => {
                 targetScroll = window.pageYOffset;
-                scrollProgress = targetScroll / getMaxScroll();
-            }, { passive: true });
-
-            // Mouse parallax
-            window.addEventListener('mousemove', (e) => {
-                targetMouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-                targetMouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+                scrollProgress = targetScroll / Math.max(getMaxScroll(), 1);
             }, { passive: true });
 
             // Resize
@@ -802,90 +774,29 @@
                 camera.aspect = window.innerWidth / window.innerHeight;
                 camera.updateProjectionMatrix();
                 renderer.setSize(window.innerWidth, window.innerHeight);
-                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-                particleMaterial.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 2);
+                pMaterial.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 2);
             });
 
-            // Animation loop
+            // Animate
             const clock = new THREE.Clock();
-
-            function updateConnections() {
-                const pos = particleGeometry.attributes.position.array;
-                const linePos = lineGeometry.attributes.position.array;
-                let lineIndex = 0;
-                const maxDist = 12;
-                const maxLines = 200;
-                let linesCount = 0;
-
-                for (let i = 0; i < Math.min(particleCount, 100) && linesCount < maxLines; i++) {
-                    for (let j = i + 1; j < Math.min(particleCount, 100) && linesCount < maxLines; j++) {
-                        const dx = pos[i * 3] - pos[j * 3];
-                        const dy = pos[i * 3 + 1] - pos[j * 3 + 1];
-                        const dz = pos[i * 3 + 2] - pos[j * 3 + 2];
-                        const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-                        if (dist < maxDist) {
-                            linePos[lineIndex++] = pos[i * 3];
-                            linePos[lineIndex++] = pos[i * 3 + 1];
-                            linePos[lineIndex++] = pos[i * 3 + 2];
-                            linePos[lineIndex++] = pos[j * 3];
-                            linePos[lineIndex++] = pos[j * 3 + 1];
-                            linePos[lineIndex++] = pos[j * 3 + 2];
-                            linesCount++;
-                        }
-                    }
-                }
-                for (let i = lineIndex; i < particleCount * 6; i++) {
-                    linePos[i] = 0;
-                }
-                lineGeometry.attributes.position.needsUpdate = true;
-            }
-
             function animate() {
                 requestAnimationFrame(animate);
-                const elapsed = clock.getElapsedTime();
+                const t = clock.getElapsedTime();
 
-                // Smooth scroll interpolation
-                mouseX += (targetMouseX - mouseX) * 0.05;
-                mouseY += (targetMouseY - mouseY) * 0.05;
+                bgMaterial.uniforms.uTime.value = t;
+                bgMaterial.uniforms.uScroll.value = targetScroll;
+                imgMaterial.uniforms.uTime.value = t;
+                imgMaterial.uniforms.uScroll.value = targetScroll;
+                pMaterial.uniforms.uTime.value = t;
+                pMaterial.uniforms.uScroll.value = targetScroll;
 
-                // Camera follows mouse subtly
-                camera.position.x += (mouseX * 3 - camera.position.x) * 0.02;
-                camera.position.y += (-mouseY * 2 - camera.position.y) * 0.02;
-                camera.lookAt(0, 0, 0);
-
-                // Update particles
-                particleMaterial.uniforms.uTime.value = elapsed;
-                particleMaterial.uniforms.uScroll.value = targetScroll;
-
-                // Update image planes
-                imagePlanes.forEach((plane) => {
-                    const d = plane.userData;
-                    plane.position.y = d.baseY + Math.sin(elapsed * d.floatSpeed) * d.floatAmp - targetScroll * d.parallaxFactor * 0.1;
-                    plane.position.x = d.baseX + Math.cos(elapsed * d.floatSpeed * 0.7) * d.floatAmp * 0.5;
-                    plane.rotation.z += d.rotSpeed;
-                    plane.rotation.y = Math.sin(elapsed * 0.1 + d.index) * 0.1 + mouseX * 0.05;
-                });
-
-                // Update geometric shapes
-                shapes.forEach((shape) => {
-                    const d = shape.userData;
-                    shape.rotation.x += d.rotSpeed.x;
-                    shape.rotation.y += d.rotSpeed.y;
-                    shape.position.y = d.baseY + Math.sin(elapsed * d.floatSpeed) * d.floatAmp - targetScroll * d.parallaxFactor * 0.08;
-                });
-
-                // Update connections every 10 frames
-                if (Math.floor(elapsed * 60) % 10 === 0) {
-                    updateConnections();
-                }
-
-                // Subtle scene rotation based on scroll
-                imageGroup.rotation.y = scrollProgress * Math.PI * 0.1;
-                imageGroup.rotation.x = Math.sin(scrollProgress * Math.PI * 0.05) * 0.05;
+                // Subtle camera movement with scroll
+                camera.position.y = -scrollProgress * 2;
+                camera.position.x = Math.sin(scrollProgress * Math.PI) * 0.5;
+                camera.lookAt(0, -scrollProgress * 1.5, 0);
 
                 renderer.render(scene, camera);
             }
-
             animate();
         })();
     </script>
