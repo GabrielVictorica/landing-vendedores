@@ -580,7 +580,7 @@
             });
         });
     </script>
-    <!-- Three.js 3D Background - Virtual Tour (Corrected) -->
+    <!-- Three.js 3D Background - Virtual Tour (Fixed Distortion) -->
     <script>
         (function() {
             const canvas = document.getElementById('three-bg');
@@ -591,13 +591,12 @@
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
             const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+            const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
             camera.position.set(0, 0, 10);
 
             let scrollY = 0;
             let smoothScroll = 0;
 
-            // Image paths
             const imageUrls = [
                 'nanobanana-output/luxury_modern_house_exterior_at_.png',
                 'nanobanana-output/luxury_modern_living_room_interi.png',
@@ -605,11 +604,18 @@
                 'nanobanana-output/elegant_modern_apartment_buildin_2.png',
             ];
 
-            // Single full-screen plane
-            const aspect = window.innerWidth / window.innerHeight;
-            const planeH = 11;
-            const planeW = planeH * aspect;
-            const geometry = new THREE.PlaneGeometry(planeW, planeH, 32, 32);
+            // Calculate plane size to cover viewport
+            function getPlaneSize() {
+                const fovRad = camera.fov * (Math.PI / 180);
+                const dist = camera.position.z - (-5);
+                const height = 2 * Math.tan(fovRad / 2) * dist;
+                const width = height * camera.aspect;
+                return { width, height };
+            }
+
+            // Create plane
+            let planeSize = getPlaneSize();
+            let geometry = new THREE.PlaneGeometry(planeSize.width, planeSize.height);
 
             const material = new THREE.ShaderMaterial({
                 uniforms: {
@@ -622,35 +628,27 @@
                     uBlend2: { value: 0.0 },
                     uBlend3: { value: 0.0 },
                     uTime: { value: 0 },
-                    uOpacity: { value: 0.12 },
+                    uOpacity: { value: 0.15 },
                 },
                 vertexShader: `
-                    uniform float uTime;
                     varying vec2 vUv;
                     void main() {
                         vUv = uv;
-                        vec3 pos = position;
-                        pos.z += sin(pos.x * 0.8 + uTime * 0.15) * 0.06;
-                        pos.z += cos(pos.y * 0.6 + uTime * 0.12) * 0.04;
-                        gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
                     }
                 `,
                 fragmentShader: `
                     uniform sampler2D uTexture0, uTexture1, uTexture2, uTexture3;
                     uniform float uBlend0, uBlend1, uBlend2, uBlend3;
                     uniform float uOpacity;
-                    uniform float uTime;
                     varying vec2 vUv;
                     void main() {
-                        vec2 uv = vUv;
-                        uv.x += sin(uv.y * 3.14159 + uTime * 0.08) * 0.002;
-                        vec4 c0 = texture2D(uTexture0, uv) * uBlend0;
-                        vec4 c1 = texture2D(uTexture1, uv) * uBlend1;
-                        vec4 c2 = texture2D(uTexture2, uv) * uBlend2;
-                        vec4 c3 = texture2D(uTexture3, uv) * uBlend3;
+                        vec4 c0 = texture2D(uTexture0, vUv) * uBlend0;
+                        vec4 c1 = texture2D(uTexture1, vUv) * uBlend1;
+                        vec4 c2 = texture2D(uTexture2, vUv) * uBlend2;
+                        vec4 c3 = texture2D(uTexture3, vUv) * uBlend3;
                         vec4 color = c0 + c1 + c2 + c3;
-                        float alpha = max(max(uBlend0, uBlend1), max(uBlend2, uBlend3)) * uOpacity;
-                        gl_FragColor = vec4(color.rgb, alpha);
+                        gl_FragColor = vec4(color.rgb, uOpacity);
                     }
                 `,
                 transparent: true,
@@ -662,9 +660,8 @@
             plane.position.z = -5;
             scene.add(plane);
 
-            // Load all 4 textures
+            // Load textures
             const textureLoader = new THREE.TextureLoader();
-            let loadedCount = 0;
             imageUrls.forEach((url, i) => {
                 textureLoader.load(url, (texture) => {
                     texture.minFilter = THREE.LinearFilter;
@@ -672,7 +669,6 @@
                     texture.wrapS = THREE.ClampToEdgeWrapping;
                     texture.wrapT = THREE.ClampToEdgeWrapping;
                     material.uniforms['uTexture' + i].value = texture;
-                    loadedCount++;
                 });
             });
 
@@ -739,9 +735,11 @@
                 camera.updateProjectionMatrix();
                 renderer.setSize(w, h);
                 pMaterial.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 2);
-                const a = w / h;
-                plane.scale.x = a / (16/9);
-                plane.scale.y = 1 / (9/9);
+
+                // Recreate plane geometry with correct size
+                planeSize = getPlaneSize();
+                plane.geometry.dispose();
+                plane.geometry = new THREE.PlaneGeometry(planeSize.width, planeSize.height);
             });
 
             const clock = new THREE.Clock();
@@ -755,13 +753,11 @@
                 const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
                 const progress = Math.min(1, Math.max(0, smoothScroll / Math.max(maxScroll, 1)));
 
-                // Map progress to 4 scenes (0-3)
                 const sceneFloat = progress * 3;
                 const currentScene = Math.min(3, Math.floor(sceneFloat));
                 const blendRaw = sceneFloat - currentScene;
                 const blend = easeInOutCubic(Math.min(1, Math.max(0, blendRaw)));
 
-                // Set blend uniforms
                 const blends = [0, 0, 0, 0];
                 if (currentScene < 3) {
                     blends[currentScene] = 1 - blend;
@@ -781,7 +777,6 @@
                 camera.position.y = Math.cos(t * 0.12) * 0.08 - progress * 0.3;
                 camera.lookAt(0, -progress * 0.5, -5);
 
-                // Particles
                 pMaterial.uniforms.uTime.value = t;
 
                 renderer.render(scene, camera);
