@@ -25,3 +25,9 @@ yarn-error.log*
 
 # Vercel
 .vercel
+
+# AI & Temporary
+.kilo/
+nanobanana-output/
+temp_frames/
+nul

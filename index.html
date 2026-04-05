@@ -23,6 +23,10 @@
     <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
+    <!-- GSAP -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
+
     <!-- Facebook Pixel Code -->
     <script>
         !function (f, b, e, v, n, t, s) {
@@ -81,6 +85,7 @@
         .gold-gradient-text {
             background: linear-gradient(to right, #D4AF37, #F3E5AB, #D4AF37);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             background-size: 200% auto;
             animation: shine 5s linear infinite;
@@ -112,6 +117,19 @@
             -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
         }
 
+        #scroll-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -5;
+            pointer-events: none;
+            background: #080C15;
+            display: block;
+            will-change: transform;
+        }
+
         /* DYNAMIC BACKGROUND - Three.js Canvas */
         #three-bg {
             position: fixed;
@@ -119,7 +137,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1;
+            z-index: -2;
             pointer-events: none;
         }
 
@@ -146,6 +164,109 @@
 </head>
 
 <body class="bg-brand-dark text-white font-sans antialiased overflow-x-hidden">
+
+    <!-- SCROLL-DRIVEN CANVAS BACKGROUND (PREMIUM RENDERING) -->
+    <canvas id="scroll-canvas"></canvas>
+
+    <script>
+        (function() {
+            const canvas = document.getElementById("scroll-canvas");
+            if (!canvas) return;
+            const ctx = canvas.getContext("2d");
+            
+            // Configuration
+            const frameCount = 192;
+            const frames = [];
+            const air = { frame: 0 };
+            
+            // Retina / High DPI Support
+            function resizeCanvas() {
+                const dpr = window.devicePixelRatio || 1;
+                canvas.width = window.innerWidth * dpr;
+                canvas.height = window.innerHeight * dpr;
+                canvas.style.width = window.innerWidth + 'px';
+                canvas.style.height = window.innerHeight + 'px';
+                ctx.scale(dpr, dpr);
+                render(); // Re-render on resize
+            }
+
+            // Preload Logic
+            let loadedFrames = 0;
+            function preloadFrames() {
+                for (let i = 1; i <= frameCount; i++) {
+                    const img = new Image();
+                    img.onload = () => {
+                        loadedFrames++;
+                        if (loadedFrames === frameCount) {
+                            initScrollAnimation();
+                        }
+                    };
+                    img.onerror = () => {
+                        console.error(`Failed to load frame ${i}`);
+                        loadedFrames++;
+                        if (loadedFrames === frameCount) initScrollAnimation();
+                    };
+                    // Ensure the path matches the extracted frames
+                    const frameNum = String(i).padStart(4, "0");
+                    img.src = `frames/f_${frameNum}.webp`;
+                    frames.push(img);
+                }
+            }
+
+            function render() {
+                const img = frames[Math.floor(air.frame)];
+                if (!img || !img.complete) return;
+
+                const dpr = window.devicePixelRatio || 1;
+                const canvasW = canvas.width / dpr;
+                const canvasH = canvas.height / dpr;
+
+                // Object-fit: cover logic
+                const imgAspect = img.width / img.height;
+                const canvasAspect = canvasW / canvasH;
+                let drawW, drawH, drawX, drawY;
+
+                if (imgAspect > canvasAspect) {
+                    drawH = canvasH;
+                    drawW = canvasH * imgAspect;
+                    drawX = (canvasW - drawW) / 2;
+                    drawY = 0;
+                } else {
+                    drawW = canvasW;
+                    drawH = canvasW / imgAspect;
+                    drawX = 0;
+                    drawY = (canvasH - drawH) / 2;
+                }
+
+                ctx.clearRect(0, 0, canvasW, canvasH);
+                ctx.drawImage(img, drawX, drawY, drawW, drawH);
+            }
+
+            function initScrollAnimation() {
+                // Initial render
+                render();
+
+                // GSAP ScrollTrigger
+                gsap.to(air, {
+                    frame: frameCount - 1,
+                    snap: "frame",
+                    ease: "none",
+                    scrollTrigger: {
+                        trigger: "body",
+                        start: "top top",
+                        end: "bottom bottom",
+                        scrub: 0.5 // Subtle lag for smoothness
+                    },
+                    onUpdate: () => requestAnimationFrame(render)
+                });
+            }
+
+            // Entry point
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+            preloadFrames();
+        })();
+    </script>
 
     <!-- DYNAMIC BACKGROUND - Three.js -->
     <div class="bg-layer base-layer"></div>
@@ -249,7 +370,7 @@
     </header>
 
     <!-- SECTION: CARRUSEL INFINITO (VENDIDAS) -->
-    <section class="py-16 relative border-t border-gray-900 border-b border-gray-900 overflow-hidden z-10 bg-black/85">
+    <section class="py-12 relative border-t border-gray-900 border-b border-gray-900 overflow-hidden z-10 bg-black/85">
         <div class="relative z-10">
             <div class="container mx-auto px-6 mb-8 text-center">
             <p class="text-brand-gold text-xs font-bold tracking-[0.3em] uppercase mb-2">Resultados Comprobados</p>
@@ -343,88 +464,6 @@
                     </div>
                 </li>
 
-                <!-- Duplicado para Scroll Infinito (9 Imágenes) -->
-                <li>
-                    <div class="relative w-64 h-40 rounded-lg overflow-hidden group"><img
-                            src="Imagenes_carrusel/486327979_1142303394342167_2032161520371318224_n.jpg"
-                            class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500">
-                        <div
-                            class="absolute bottom-2 left-2 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">
-                            Vendida</div>
-                    </div>
-                </li>
-                <li>
-                    <div class="relative w-64 h-40 rounded-lg overflow-hidden group"><img
-                            src="Imagenes_carrusel/491591726_1159467905959049_3279082786292281653_n.jpg"
-                            class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500">
-                        <div
-                            class="absolute bottom-2 left-2 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">
-                            Vendida</div>
-                    </div>
-                </li>
-                <li>
-                    <div class="relative w-64 h-40 rounded-lg overflow-hidden group"><img
-                            src="Imagenes_carrusel/502474578_1192314902674349_321056136281013656_n.jpg"
-                            class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500">
-                        <div
-                            class="absolute bottom-2 left-2 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">
-                            Vendida</div>
-                    </div>
-                </li>
-                <li>
-                    <div class="relative w-64 h-40 rounded-lg overflow-hidden group"><img
-                            src="Imagenes_carrusel/Gemini_Generated_Image_ank022ank022ank0.png"
-                            class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500">
-                        <div
-                            class="absolute bottom-2 left-2 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">
-                            Vendida</div>
-                    </div>
-                </li>
-                <li>
-                    <div class="relative w-64 h-40 rounded-lg overflow-hidden group"><img
-                            src="Imagenes_carrusel/IMG_20250104_122756575.jpg"
-                            class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500">
-                        <div
-                            class="absolute bottom-2 left-2 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">
-                            Vendida</div>
-                    </div>
-                </li>
-                <li>
-                    <div class="relative w-64 h-40 rounded-lg overflow-hidden group"><img
-                            src="Imagenes_carrusel/IMG_20250919_152958300.jpg"
-                            class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500">
-                        <div
-                            class="absolute bottom-2 left-2 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">
-                            Vendida</div>
-                    </div>
-                </li>
-                <li>
-                    <div class="relative w-64 h-40 rounded-lg overflow-hidden group"><img
-                            src="Imagenes_carrusel/Imagen de WhatsApp 2025-07-31 a las 20.50.00_23d0c205.jpg"
-                            class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500">
-                        <div
-                            class="absolute bottom-2 left-2 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">
-                            Vendida</div>
-                    </div>
-                </li>
-                <li>
-                    <div class="relative w-64 h-40 rounded-lg overflow-hidden group"><img
-                            src="Imagenes_carrusel/Imagen de WhatsApp 2025-08-20 a las 13.21.24_27096fff.jpg"
-                            class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500">
-                        <div
-                            class="absolute bottom-2 left-2 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">
-                            Vendida</div>
-                    </div>
-                </li>
-                <li>
-                    <div class="relative w-64 h-40 rounded-lg overflow-hidden group"><img
-                            src="Imagenes_carrusel/a164a0b6-4c77-4368-91fc-19ca8036f351.png"
-                            class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500">
-                        <div
-                            class="absolute bottom-2 left-2 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">
-                            Vendida</div>
-                    </div>
-                </li>
             </ul>
         </div>
         </div>
@@ -535,7 +574,7 @@
     </section>
 
     <!-- FOOTER -->
-    <footer class="py-8 border-t border-gray-900 border-b-4 border-b-brand-gold relative z-10 bg-black/90">
+    <footer class="py-12 border-t border-gray-900 border-b-4 border-b-brand-gold relative z-10 bg-black/90">
         <div class="container mx-auto px-6 text-center relative z-10">
             <div class="text-xl font-serif font-bold text-brand-gold tracking-widest mb-2">
                 GABRIEL VICTORICA
@@ -580,6 +619,7 @@
             });
         });
     </script>
+
     <!-- Three.js 3D Background - Virtual Tour (Fixed Distortion) -->
     <script>
         (function() {
@@ -598,10 +638,10 @@
             let smoothScroll = 0;
 
             const imageUrls = [
-                'Imagenes_carrusel/bg_fachada.png',
-                'Imagenes_carrusel/bg_living.png',
-                'Imagenes_carrusel/bg_cocina.png',
-                'Imagenes_carrusel/bgterraza.png',
+                'Imagenes_carrusel/IMG_20250919_152958300.jpg',
+                'Imagenes_carrusel/IMG_20250104_122756575.jpg',
+                'Imagenes_carrusel/a164a0b6-4c77-4368-91fc-19ca8036f351.png',
+                'Imagenes_carrusel/502474578_1192314902674349_321056136281013656_n.jpg',
             ];
 
             // Calculate plane size to cover viewport
